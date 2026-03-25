@@ -30,24 +30,26 @@ This platform consolidates customer, order, and product data into a unified view
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                         BRONZE LAYER (Raw)                              │
 │   raw_customers │ raw_orders │ raw_order_items │ raw_products │ ...     │
+│                                                                         │
+│   Loaded manually via CSV upload into Fabric Lakehouse                  │
 └───────────────────────────────┬─────────────────────────────────────────┘
                                 │
                                 ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                         GOLD LAYER (Dimensional Model)                  │
+│              Built via PySpark notebook (02_build_dimension_model)      │
 │                                                                         │
 │                           ┌──────────┐                                  │
 │                           │ dim_date │                                  │
 │                           └────┬─────┘                                  │
 │                                │                                        │
-│    ┌──────────────┐     ┌──────┴───────┐     ┌─────────────┐            │
-│    │ dim_customer │─────│ fact_orders  │─────│ dim_product │            │
-│    └──────────────┘     └──────┬───────┘     └─────────────┘            │
+│    ┌──────────────┐     ┌──────┴───────┐     ┌─────────────┐           │
+│    │ dim_customer │─────│ fact_orders  │─────│ dim_product │           │
+│    └──────────────┘     └──────┬───────┘     └─────────────┘           │
 │                                │                                        │
-│                         ┌──────┴───────┐                                │
-│                         │dim_geography │                                │
-│                         └──────────────┘                                │
-│                                                                         │
+│                         ┌──────┴───────┐                               │
+│                         │dim_geography │                               │
+│                         └──────────────┘                               │
 └───────────────────────────────┬─────────────────────────────────────────┘
                                 │
                                 ▼
@@ -68,7 +70,7 @@ This platform consolidates customer, order, and product data into a unified view
 ## Tech Stack
 
 | Layer | Technology |
-|-------|------------|
+|---|---|
 | Platform | Microsoft Fabric |
 | Storage | Fabric Lakehouse (OneLake) |
 | Transformation | PySpark Notebooks |
@@ -78,10 +80,46 @@ This platform consolidates customer, order, and product data into a unified view
 
 ---
 
+## Quickstart
+
+### Prerequisites
+- Microsoft Fabric workspace (free trial or licensed)
+- Access to the [Olist Brazilian E-Commerce Dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) from Kaggle
+
+### Step 1 — Set Up Fabric Lakehouse
+1. Create a new Fabric workspace
+2. Create a Lakehouse named `cloth_analytics`
+
+### Step 2 — Load Bronze Layer
+Upload the following CSV files from the Olist dataset directly into the Lakehouse as tables:
+
+| CSV File | Table Name |
+|---|---|
+| olist_customers_dataset.csv | raw_customers |
+| olist_orders_dataset.csv | raw_orders |
+| olist_order_items_dataset.csv | raw_order_items |
+| olist_products_dataset.csv | raw_products |
+| product_category_name_translation.csv | raw_category_translation |
+| olist_order_payments_dataset.csv | raw_order_payments |
+
+### Step 3 — Build the Dimensional Model
+1. Import `notebooks/02_build_dimension_model.py` into your Fabric workspace as a new notebook
+2. Attach it to your `cloth_analytics` lakehouse
+3. Run all cells in order
+4. Verify the gold layer tables are created (validation output prints at the end)
+
+### Step 4 — Connect Power BI
+1. Open Power BI via the Fabric workspace
+2. Create a new semantic model pointing to the gold layer tables
+3. Build DAX measures for revenue, order volume, and category mix
+4. Build reports for each stakeholder persona (Executive, Marketing, Operations)
+
+---
+
 ## Data Model
 
 | Table | Rows | Description |
-|-------|------|-------------|
+|---|---|---|
 | dim_date | 774 | Date dimension with day/week/month/quarter/year attributes |
 | dim_customer | 93,358 | Customer dimension with demographics and segmentation |
 | dim_product | 32,951 | Product dimension with category mapping and price tiers |
@@ -113,10 +151,8 @@ Operational metrics for COO: order volume patterns, day-of-week trends, fulfillm
 
 ## Key Insights
 
-From the dashboards, Cloth leadership can see:
-
 - **Accessories = 11% of revenue ($1.45M)** — confirms underperformance vs. industry benchmark
-- **25-34 age group is largest segment** — primary target for re-brand campaign  
+- **25-34 age group is largest segment** — primary target for re-brand campaign
 - **Southeast region dominates** (65% of revenue) — geographic expansion opportunity exists
 - **97% of customers are "New"** — retention/loyalty is a challenge across all categories
 - **Premium tier drives 56% of revenue** despite fewer orders — price tolerance exists
@@ -126,7 +162,7 @@ From the dashboards, Cloth leadership can see:
 ## Project Documentation
 
 | Document | Description |
-|----------|-------------|
+|---|---|
 | [Business Context](docs/01-business-context.md) | Stakeholder requirements and success criteria |
 | [Data Source Evaluation](docs/02-data-source-evaluation.md) | Assessment of candidate datasets |
 | [Architecture Design](docs/03-architecture-design.md) | Dimensional model and technical decisions |
@@ -144,18 +180,12 @@ From the dashboards, Cloth leadership can see:
 **Data Architecture**
 - Dimensional modeling (star schema)
 - Source-to-target mapping
-- Data quality handling
+- Data quality handling and validation
 
 **Solutions Architecture**
 - Business requirements gathering
 - Platform evaluation with cost analysis
 - Trade-off documentation and decision records
-
----
-
-## About
-
-This project was built to demonstrate end-to-end data platform development with a solutions architecture mindset. The focus is not just on technical implementation, but on business context, architectural decisions, and stakeholder-oriented deliverables.
 
 ---
 
