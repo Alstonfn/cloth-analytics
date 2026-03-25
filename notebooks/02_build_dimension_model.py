@@ -1,5 +1,5 @@
 # ## 02_build_dimension_model
-# 
+
 # Dimension model for Cloth_analytics
 
 # In[1]:
