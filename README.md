@@ -65,6 +65,8 @@ This platform consolidates customer, order, and product data into a unified view
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
+> **Architectural Note:** This project implements a simplified Bronze → Gold medallion pattern. The PySpark transformation notebook reads directly from raw bronze tables and builds the dimensional model in one step. In a production environment, a Silver layer would sit between Bronze and Gold to handle intermediate cleaning, null handling, deduplication, and data conformation before dimensional modeling. This design decision was intentional for a single-dataset project — the Olist data is well-structured enough that a full three-layer approach would add complexity without meaningful benefit at this scale.
+
 ---
 
 ## Tech Stack
@@ -188,6 +190,10 @@ Operational metrics for COO: order volume patterns, day-of-week trends, fulfillm
 - Trade-off documentation and decision records
 
 ---
+
+## Data Source
+
+[Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) — 100K orders from 2016-2018, used under CC BY-NC-SA 4.0 license.
 
 ## Data Source
 
